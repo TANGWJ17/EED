@@ -33,7 +33,9 @@ def mutate(parPops, F, generation, maxGeneration, model, kind=0, time_varing=Fal
     if kind == 0:
         for j in range(len(parPops)):
             if len(Archive) > 0:
-                best = 0.6 * Archive[random.randint(0, len(Archive) - 1)] + 0.4 * parPops[j]
+                # best = 1.2 * Archive[random.randint(0, len(Archive) - 1)] - 0.2 * parPops[j]
+                # best = 1.1 * Archive[random.randint(0, len(Archive) - 1)] - 0.1 * parPops[j]
+                best = Archive[random.randint(0, len(Archive) - 1)]
             else:
                 best = parPops[random.randint(0, len(parPops) - 1)]
             r2, r3 = random.randint(0, len(parPops) - 1), random.randint(0, len(parPops) - 1)
@@ -50,10 +52,17 @@ def crossover(parPops, mutantPops, Cr):
 
     def basis(i):
         r = np.random.uniform()
-        if r > Cr:
+        if r < Cr:
             return parPops[i]
         else:
             return mutantPops[i]
+    def basic(i):
+        new = parPops[i]
+        for j in range(len(parPops[i])):
+            r = np.random.uniform()
+            if r < Cr:
+                new[j] = mutantPops[i][j]
+        return new
 
     for i in num_list:
         crossPops[i] = basis(i)

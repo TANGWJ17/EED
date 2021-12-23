@@ -35,8 +35,8 @@ class MMODE(object):
     def Func(self, solution, model, demand):
         fuel = 0
         emis = 0
-        a1 = 1000  # penalty factor
-        a2 = 1
+        a1 = 5000  # penalty factor
+        a2 = 50
         for i in range(len(solution)):
             fuel += costfun(i, solution[i], self.model.C, self.model.P)
             emis += emission(i, solution[i], self.model.E, flag=True)
@@ -64,19 +64,15 @@ class MMODE(object):
             return True
         return False
 
-    def solve(self, demand, GUI=None):
+    def solve(self, demand):
         # start iteration
         print('-----start iteration-----')
         itera = 1
         parPops = initialize(self.nPop, self.model, kind=self.init, demand=demand)
         parFits = self.fitness(parPops, self.model, demand)
         while itera <= self.nIter:
-            if GUI is not None and itera % 10 == 0:
-                GUI.ui.progressBar.setProperty("value", 100 * itera / self.nIter)
-                GUI.show()
-            print(parPops.shape)
             mutantPops = mutate(parPops, self.F, itera, self.nIter, self.model, kind=self.mutation,
-                                time_varing=True, Fmax=self.F, Fmin=0.1,
+                                time_varing=True, Fmax=self.F, Fmin=0.01,
                                 Archive=self.Archive_X)  # generate mutated vectors
             trialPops = crossover(parPops, mutantPops, self.CR)
             trialFits = self.fitness(trialPops, self.model, demand)  # calculate fitness
@@ -100,13 +96,18 @@ class MMODE(object):
             self.bestE.append(E_min)
             parPops = pops[new_pop_index[:self.nPop]]
             parFits = fits[new_pop_index[:self.nPop]]
-            if itera % 50 == 0:
+
+            if itera % 500 == 0:
+                print(len(np.unique(parFits)))
                 # plt.scatter(front_fits[:, 0], front_fits[:, 1])
                 # plt.show()
                 # plt.figure()
-                # plt.scatter(self.Archive_Y[:, 0], self.Archive_Y[:, 1])
-                # plt.show()
-                pass
+                plt.scatter(self.Archive_Y[:, 0], self.Archive_Y[:, 1])
+                plt.xlabel('cost($/h)')
+                plt.ylabel('emission(ton/h)')
+                plt.title('Pareto Set')
+                plt.show()
+                # pass
             itera += 1
 
         sorting = zip(self.Archive_Y, self.Archive_X)
@@ -195,7 +196,7 @@ class MMODE_Thread(MMODE, QtCore.QObject):
                 self.bestE.append(E_min)
                 parPops = pops[new_pop_index[:self.nPop]]
                 parFits = fits[new_pop_index[:self.nPop]]
-                if itera % 50 == 0:
+                if itera % 20 == 0:
                     # plt.scatter(front_fits[:, 0], front_fits[:, 1])
                     # plt.show()
                     plt.figure()
@@ -249,8 +250,25 @@ class MMODE_Thread(MMODE, QtCore.QObject):
 if __name__ == '__main__':
     demand = 2.834
     model = Model('../data.txt')
-    arguments = {'nIter': 1000, 'nPop': 150, 'nArc': 150, 'nGen': 6, 'F': 0.4, 'CR': 1, 'init': 0}
+    arguments = {'nIter': 1000, 'nPop': 200, 'nArc': 100, 'nGen': 6, 'F': 0.6, 'CR': 0, 'init': 1, 'mutation': 0}
     DE = MMODE(model=model, **arguments)
     DE.solve(demand)
     print(DE.finalY.shape)
-    DE.plot()
+    n = range(DE.nIter)
+    fig, ax1 = plt.subplots()
+    color = 'tab:red'
+    ax1.set_xlabel('iteration')
+    ax1.set_ylabel('Best Cost($/h)', color=color)
+    ax1.plot(n, DE.bestC, color=color)
+    ax1.tick_params(axis='y', labelcolor=color)
+    ax2 = ax1.twinx()  # second y axis
+    color = 'tab:blue'
+    ax2.set_ylabel('Best Emission(t/h)', color=color)
+    ax2.plot(n, DE.bestE, color=color)
+    ax2.tick_params(axis='y', labelcolor=color)
+    plt.title('Best cost and emission with iteration')
+    fig.tight_layout()
+    plt.show()
+    # for i in range(100):
+    #     print(constraints(DE.Archive_X[i], model, demand))
+    # DE.plot()

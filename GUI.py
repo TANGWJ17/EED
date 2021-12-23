@@ -19,9 +19,9 @@ class MainWindow(QMainWindow):
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
         self.model = None
-        self.F = 0.4
-        self.CR = 0.8
-        self.nPop = 100
+        self.F = 0.6
+        self.CR = 0
+        self.nPop = 200
         self.progress = 0
         self.nIter = 500
         self.demand = 2.834
