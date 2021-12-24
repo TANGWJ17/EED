@@ -20,4 +20,4 @@ This toolkit and platform is based on python 3.7. It requires the following Pyth
 
 ## GUI mode
 
-![a](/Users/george/Library/Application Support/typora-user-images/image-20211224113404116.png)
+![a](https://github.com/TANGWJ17/EED/blob/master/GUI.png)
