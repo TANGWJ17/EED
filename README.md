@@ -20,4 +20,4 @@ This toolkit and platform is based on python 3.7. It requires the following Pyth
 
 ## GUI mode
 
-![a](https://github.com/TANGWJ17/EED/blob/master/GUI.png)
+![a](https://github.com/TANGWJ17/EED/blob/master/GUI.png, style="zoom:50%;)
